@@ -137,10 +137,10 @@ class SciencePortalForm extends React.Component {
   static getDerivedStateFromProps(props, state) {
     console.log(`getDerivedStateFromProps()`)
     if (props.fData !== state.fData) {
-      console.log(`getDerivedStateFromProps(): OK`)
+      console.debug(`getDerivedStateFromProps(): OK`)
       return {fData: props.fData}
     } else {
-      console.log(`getDerivedStateFromProps(): IGNORING`)
+      console.debug(`getDerivedStateFromProps(): IGNORING`)
       return null
     }
   }
@@ -148,7 +148,7 @@ class SciencePortalForm extends React.Component {
   componentDidUpdate(nextProps) {
     console.log('componentDidUpdate()')
     if (this.props.fData !== nextProps.fData) {
-      console.log(`componentDidUpdate(): OK`)
+      console.debug(`componentDidUpdate(): OK`)
         const canHaveFixed = HAS_FIXED.includes(this.state.fData?.selectedType)
         let newState = {
             fData: nextProps.fData
@@ -165,7 +165,7 @@ class SciencePortalForm extends React.Component {
         ...newState,
       });
     } else {
-      console.log(`componentDidUpdate(): IGNORING`)
+      console.debug(`componentDidUpdate(): IGNORING`)
     }
   }
 

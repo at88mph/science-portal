@@ -120,14 +120,16 @@
         portalCore.init(URLOverrides, data.accessToken)
       })
 
-      portalCore.subscribe(portalCore, cadc.web.science.portal.core.events.onServiceURLOK, (_e, data) => {
+      portalCore.subscribe(portalCore, cadc.web.science.portal.core.events.onServiceURLOK, (_e, _data) => {
         portalSessions.setServiceURLs(portalCore.sessionServiceURLs)
         portalForm.setServiceURLs(portalCore.sessionServiceURLs)
 
         portalForm.setDataFilters(portalCore.dataFilters)
 
-        // Get portalForm to start collecting form data
-        portalForm.getFormData()
+        // Get portalForm to start collecting form data, after platform information is loaded
+        portalSessions.subscribe(portalSessions, cadc.web.science.portal.session.events.onLoadPlatformUsageDone, (e, _data) => {
+            portalForm.getFormData(e.target.getPlatformUsage())
+        })
 
         // Get platform Usage information
         portalSessions.loadPlatformUsage()

@@ -16,12 +16,12 @@ function CanfarRange({
     React.useEffect(() => {
         if (value) {
             const newRangePos = range.findIndex( (el) => parseInt(el) === parseInt(value)) || 0
-            console.log(`Setting range pos to ${newRangePos} for value ${value}`)
+            console.debug(`Setting range pos to ${newRangePos} for value ${value}`)
             setRangePos(parseInt(newRangePos))
         }
 
     }, [value, range, setRangePos])
-    console.log('value', value, range, rangePos)
+    console.debug('value', value, range, rangePos)
 
     // Calculate percentage for the gradient
     const percentage = ((rangePos) / (range.length - 1)) * 100;

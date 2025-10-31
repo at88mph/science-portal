@@ -73,14 +73,18 @@
     }
 
     // -- init form data gather functions
-    function getFormData() {
+    /**
+     * Initialize form data.
+     * @param platformUsage  JSON object with platform usage information, including max combinations
+     */
+    function getFormData(platformUsage) {
 
       // Set up counter for ajax calls used to load page data
       // context + image list
       _selfPortalForm._ajaxCallCount = 3;
 
       // Start loading context data
-      _selfPortalForm.getContextData()
+      _selfPortalForm.getContextData(platformUsage)
 
       // Start loading container image lists
       _selfPortalForm.getFullImageList()
@@ -258,30 +262,55 @@
       return _selfPortalForm._contextData.defaultCores + ""
     }
 
-
     function interruptAjaxProcessing() {
       // Yes, basically a 'kill -9'
       _selfPortalForm._ajaxCallCount = -9
     }
 
     /**
-     * Get context information from skaha
+     * Get context information from skaha.
+     * @param platformUsage  JSON object with platform usage information, including max combinations
      */
-    function getContextData() {
+    function getContextData(platformUsage) {
       Promise.resolve(_getAjaxData(_selfPortalForm.sessionURLs.context))
-        .then(function(curContext) {
+        .then((curContext)=> {
           // Check to see if functions have been interrupted
           if (_selfPortalForm._ajaxCallCount !== -9) {
 
             // Not everything sent from the server is used by the front end yet.
-            // In future, the data can be stored as
+            // In the future, the data can be stored as
             // _selfPortalForm._contextData.rawData, but it'd be a waste of storage
             // to do it currently.
             // Save items that are used by the front end
-            _selfPortalForm._contextData.availableCores = curContext.cores.options
-            _selfPortalForm._contextData.availableRAM = curContext.memoryGB.options
+            _selfPortalForm._contextData.availableCores = []
+            const coreOptions = curContext.cores.options
+            const coreOptionsLength = coreOptions.length;
+            const maxCores = platformUsage.maxCoresCombination?.cpuCores || 0;
+            for (let i = 0; i < coreOptionsLength && coreOptions[i] <= maxCores; i++) {
+              // Convert to string for comparison with select options
+              _selfPortalForm._contextData.availableCores.push(coreOptions[i])
+            }
+
+            _selfPortalForm._contextData.availableRAM = []
+            const ramOptions = curContext.memoryGB.options
+            const ramOptionsLength = ramOptions.length;
+            const maxRAMGB = parseFloat(platformUsage.maxRAMCombination?.ram || 0.0);
+            for (let i = 0; i < ramOptionsLength && ramOptions[i] <= maxRAMGB; i++) {
+              // Convert to string for comparison with select options
+              _selfPortalForm._contextData.availableRAM.push(ramOptions[i])
+            }
+
             _selfPortalForm._contextData.defaultCores = curContext.cores.default
             _selfPortalForm._contextData.defaultRAM = curContext.memoryGB.default
+
+            // Add max sessions information, if present.
+            if (curContext.maxInteractiveSessions !== undefined) {
+                _selfPortalForm._contextData.maxInteractiveSessions = curContext.maxInteractiveSessions
+            }
+
+            _selfPortalForm._contextData.maxCoreCombination = platformUsage.maxCoreCombination
+            _selfPortalForm._contextData.maxRAMCombination = platformUsage.maxRAMCombination
+            console.debug(`Max combinations - Cores: ${_selfPortalForm._contextData.maxCoreCombination}, RAM: ${_selfPortalForm._contextData.maxRAMCombination}`)
 
             _selfPortalForm._ajaxCallCount--
             if (_selfPortalForm._ajaxCallCount === 0) {

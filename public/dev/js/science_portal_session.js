@@ -312,7 +312,7 @@
     function loadPlatformUsage(refreshHandler) {
       var statsURL = _selfPortalSess.sessionServiceURL + "?view=stats"
       Promise.resolve(_getAjaxData(statsURL, {}))
-          .then(function(platformUsage) {
+          .then((platformUsage) => {
 
             var nowDate = new Date()
             var month = nowDate.getUTCMonth() + 1
@@ -345,6 +345,10 @@
               }
             }
 
+            // Set the max combination values of RAM and CPU cores.  This will be used by the form when loaded.
+            _selfPortalSess._platformUsage.maxCoresCombination = platformUsage.cores.maxCPUCores
+            _selfPortalSess._platformUsage.maxRAMCombination = platformUsage.ram.maxRAM
+
             // These values may change over time, so store the key name
             // in order to use it as a label
             _selfPortalSess._platformUsage.instances = {
@@ -373,8 +377,7 @@
             // Code is here rather than in the SciencePortalPlatformUsage component
             // because it's better to do this work once than (potentially)
             // every time the component is rendered
-            const chartHeight = Math.ceil(biggestCount / 10) * 10
-            _selfPortalSess._platformUsage.instances.biggestCount = chartHeight
+            _selfPortalSess._platformUsage.instances.biggestCount = Math.ceil(biggestCount / 10) * 10
             _selfPortalSess._platformUsage.refreshHandler = refreshHandler
             _selfPortalSess._platformUsage.listType = "data"
 
@@ -564,7 +567,8 @@
         pollSessionList: pollSessionList,
         deleteSession: deleteSession,
         renewSession: renewSession,
-        sortSessions: sortSessions
+        sortSessions: sortSessions,
+        subscribe: subscribe
       })
     }
 
